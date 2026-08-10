@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CV Builder</title>
+<style>
+  :root{
+    --ink:#1c2530;
+    --ink-soft:#4a5568;
+    --line:#d8dde3;
+    --accent:#5c6f52;
+    --paper:#ffffff;
+    --panel:#f4f5f3;
+    --panel-border:#e2e5e0;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Helvetica Neue', Arial, sans-serif;
+    background:var(--panel);
+    color:var(--ink);
+  }
+  .app{
+    display:grid;
+    grid-template-columns:380px 1fr;
+    min-height:100vh;
+  }
+  /* ---------- FORM PANEL ---------- */
+  .form-panel{
+    background:var(--panel);
+    border-right:1px solid var(--panel-border);
+    padding:28px 24px 80px;
+    overflow-y:auto;
+    max-height:100vh;
+  }
+  .form-panel h1{
+    font-size:18px;
+    letter-spacing:0.02em;
+    margin:0 0 4px;
+  }
+  .form-panel .sub{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin:0 0 24px;
+  }
+  .field-group{
+    margin-bottom:22px;
+  }
+  .field-group h2{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--accent);
+    border-bottom:1px solid var(--panel-border);
+    padding-bottom:6px;
+    margin:0 0 12px;
+  }
+  label{
+    display:block;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin:10px 0 4px;
+  }
+  input[type=text], input[type=email], input[type=tel], textarea{
+    width:100%;
+    font-family:inherit;
+    font-size:13px;
+    padding:8px 9px;
+    border:1px solid var(--panel-border);
+    border-radius:4px;
+    background:var(--paper);
+    color:var(--ink);
+  }
+  textarea{resize:vertical; min-height:52px; line-height:1.4;}
+  input:focus, textarea:focus{
+    outline:none;
+    border-color:var(--accent);
+  }
+  .entry-block{
+    border:1px solid var(--panel-border);
+    border-radius:6px;
+    padding:12px;
+    margin-bottom:10px;
+    background:var(--paper);
+    position:relative;
+  }
+  .entry-row{display:flex; gap:8px;}
+  .entry-row > div{flex:1;}
+  .remove-btn{
+    position:absolute;
+    top:8px; right:8px;
+    border:none;
+    background:none;
+    color:#b5451e;
+    font-size:12px;
+    cursor:pointer;
+    padding:2px 4px;
+  }
+  .add-btn{
+    width:100%;
+    padding:8px;
+    border:1px dashed var(--accent);
+    background:none;
+    color:var(--accent);
+    border-radius:5px;
+    font-size:12.5px;
+    cursor:pointer;
+    margin-top:4px;
+  }
+  .add-btn:hover{background:#eef1ec;}
+  .actions{
+    position:sticky;
+    bottom:0;
+    background:var(--panel);
+    padding-top:14px;
+    margin-top:10px;
+    border-top:1px solid var(--panel-border);
+  }
+  .print-btn{
+    width:100%;
+    padding:12px;
+    background:var(--ink);
+    color:#fff;
+    border:none;
+    border-radius:6px;
+    font-size:13.5px;
+    letter-spacing:0.02em;
+    cursor:pointer;
+  }
+  .print-btn:hover{background:#0f151c;}
+  .hint{
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-top:8px;
+    line-height:1.5;
+  }
+
+  /* ---------- PREVIEW / CV ---------- */
+  .preview-wrap{
+    padding:40px;
+    display:flex;
+    justify-content:center;
+    overflow-y:auto;
+  }
+  .cv-page{
+    width:816px;
+    min-height:1056px;
+    background:var(--paper);
+    box-shadow:0 4px 24px rgba(0,0,0,0.08);
+    padding:56px 60px;
+    font-family:Georgia, 'Times New Roman', serif;
+  }
+  .cv-name{
+    font-size:34px;
+    letter-spacing:0.01em;
+    margin:0 0 2px;
+    color:var(--ink);
+  }
+  .cv-title{
+    font-family:'Helvetica Neue', Arial, sans-serif;
+    font-size:13px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin:0 0 14px;
+  }
+  .cv-contact{
+    font-family:'Helvetica Neue', Arial, sans-serif;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    display:flex;
+    flex-wrap:wrap;
+    gap:4px 14px;
+    margin-bottom:20px;
+    padding-bottom:18px;
+    border-bottom:2px solid var(--ink);
+  }
+  .cv-summary{
+    font-size:13.5px;
+    line-height:1.6;
+    color:#2a333d;
+    margin-bottom:22px;
+  }
+  .cv-section{margin-bottom:20px;}
+  .cv-section-title{
+    font-family:'Helvetica Neue', Arial, sans-serif;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.1em;
+    color:var(--accent);
+    border-bottom:1px solid var(--line);
+    padding-bottom:5px;
+    margin-bottom:10px;
+  }
+  .cv-entry{margin-bottom:13px;}
+  .cv-entry-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    font-size:14px;
+  }
+  .cv-entry-role{font-weight:bold; color:var(--ink);}
+  .cv-entry-org{
+    font-family:'Helvetica Neue', Arial, sans-serif;
+    font-size:12px;
+    color:var(--ink-soft);
+  }
+  .cv-entry-date{
+    font-family:'Helvetica Neue', Arial, sans-serif;
+    font-size:11px;
+    color:var(--ink-soft);
+    white-space:nowrap;
+  }
+  .cv-entry-desc{
+    font-size:12.5px;
+    line-height:1.55;
+    color:#3a4451;
+    margin-top:4px;
+    white-space:pre-line;
+  }
+  .cv-skills{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px 10px;
+    font-family:'Helvetica Neue', Arial, sans-serif;
+    font-size:12px;
+  }
+  .cv-skill{
+    background:#eef1ec;
+    color:#3d4a37;
+    padding:3px 10px;
+    border-radius:12px;
+  }
+  .empty-note{
+    color:#a8b0ba;
+    font-style:italic;
+  }
+
+  /* ---------- PRINT ---------- */
+  @media print{
+    .form-panel, .preview-wrap{padding:0;}
+    .form-panel{display:none;}
+    .app{display:block;}
+    body{background:#fff;}
+    .cv-page{
+      box-shadow:none;
+      width:auto;
+      min-height:auto;
+      padding:0.4in 0.55in;
+      margin:0;
+    }
+    .preview-wrap{
+      display:block;
+      padding:0;
+    }
+    @page{margin:0;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ===================== FORM PANEL ===================== -->
+  <div class="form-panel" id="formPanel">
+    <h1>CV Builder</h1>
+    <p class="sub">Fill in your details on the left — your CV updates live on the right.</p>
+
+    <div class="field-group">
+      <h2>Header</h2>
+      <label>Full name</label>
+      <input type="text" id="f_name" placeholder="Jordan Blake">
+      <label>Professional title</label>
+      <input type="text" id="f_title" placeholder="Product Designer">
+      <label>Email</label>
+      <input type="email" id="f_email" placeholder="jordan@example.com">
+      <label>Phone</label>
+      <input type="tel" id="f_phone" placeholder="+1 555 123 4567">
+      <label>Location</label>
+      <input type="text" id="f_location" placeholder="Austin, TX">
+      <label>Website / LinkedIn</label>
+      <input type="text" id="f_link" placeholder="linkedin.com/in/jordanblake">
+    </div>
+
+    <div class="field-group">
+      <h2>Summary</h2>
+      <textarea id="f_summary" placeholder="A short 2-3 sentence summary of your experience and strengths."></textarea>
+    </div>
+
+    <div class="field-group">
+      <h2>Experience</h2>
+      <div id="expList"></div>
+      <button class="add-btn" onclick="addExperience()">+ Add experience</button>
+    </div>
+
+    <div class="field-group">
+      <h2>Education</h2>
+      <div id="eduList"></div>
+      <button class="add-btn" onclick="addEducation()">+ Add education</button>
+    </div>
+
+    <div class="field-group">
+      <h2>Skills</h2>
+      <label>Comma-separated</label>
+      <input type="text" id="f_skills" placeholder="Figma, User Research, JavaScript, Prototyping">
+    </div>
+
+    <div class="actions">
+      <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+      <p class="hint">In the print dialog, choose "Save as PDF" as the destination to download a PDF instead of printing.</p>
+    </div>
+  </div>
+
+  <!-- ===================== PREVIEW / CV ===================== -->
+  <div class="preview-wrap">
+    <div class="cv-page" id="cvPage">
+      <div class="cv-name" id="p_name">Your Name</div>
+      <div class="cv-title" id="p_title">Professional Title</div>
+      <div class="cv-contact" id="p_contact"></div>
+
+      <div class="cv-summary" id="p_summary"></div>
+
+      <div class="cv-section">
+        <div class="cv-section-title">Experience</div>
+        <div id="p_experience"><div class="empty-note">Add a role to see it appear here.</div></div>
+      </div>
+
+      <div class="cv-section">
+        <div class="cv-section-title">Education</div>
+        <div id="p_education"><div class="empty-note">Add your education to see it appear here.</div></div>
+      </div>
+
+      <div class="cv-section">
+        <div class="cv-section-title">Skills</div>
+        <div class="cv-skills" id="p_skills"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let expCount = 0;
+let eduCount = 0;
+
+function addExperience(data){
+  expCount++;
+  const id = 'exp' + expCount;
+  const wrap = document.createElement('div');
+  wrap.className = 'entry-block';
+  wrap.id = id;
+  wrap.innerHTML = `
+    <button class="remove-btn" onclick="removeEntry('${id}')">Remove</button>
+    <label>Role</label>
+    <input type="text" class="exp-role" placeholder="Senior Designer" oninput="render()">
+    <div class="entry-row">
+      <div>
+        <label>Company</label>
+        <input type="text" class="exp-org" placeholder="Acme Co." oninput="render()">
+      </div>
+      <div>
+        <label>Dates</label>
+        <input type="text" class="exp-date" placeholder="2022 — Present" oninput="render()">
+      </div>
+    </div>
+    <label>Description (one bullet per line)</label>
+    <textarea class="exp-desc" placeholder="Led the redesign of the core product...&#10;Grew the design team from 2 to 6." oninput="render()"></textarea>
+  `;
+  document.getElementById('expList').appendChild(wrap);
+  render();
+}
+
+function addEducation(data){
+  eduCount++;
+  const id = 'edu' + eduCount;
+  const wrap = document.createElement('div');
+  wrap.className = 'entry-block';
+  wrap.id = id;
+  wrap.innerHTML = `
+    <button class="remove-btn" onclick="removeEntry('${id}')">Remove</button>
+    <label>Degree</label>
+    <input type="text" class="edu-degree" placeholder="B.A. Graphic Design" oninput="render()">
+    <div class="entry-row">
+      <div>
+        <label>School</label>
+        <input type="text" class="edu-org" placeholder="State University" oninput="render()">
+      </div>
+      <div>
+        <label>Dates</label>
+        <input type="text" class="edu-date" placeholder="2016 — 2020" oninput="render()">
+      </div>
+    </div>
+  `;
+  document.getElementById('eduList').appendChild(wrap);
+  render();
+}
+
+function removeEntry(id){
+  document.getElementById(id).remove();
+  render();
+}
+
+function esc(s){
+  const d = document.createElement('div');
+  d.innerText = s || '';
+  return d.innerHTML;
+}
+
+function render(){
+  const name = document.getElementById('f_name').value || 'Your Name';
+  const title = document.getElementById('f_title').value || 'Professional Title';
+  document.getElementById('p_name').innerText = name;
+  document.getElementById('p_title').innerText = title;
+
+  const contactBits = [
+    document.getElementById('f_location').value,
+    document.getElementById('f_email').value,
+    document.getElementById('f_phone').value,
+    document.getElementById('f_link').value
+  ].filter(Boolean);
+  document.getElementById('p_contact').innerText = contactBits.join('   ·   ');
+
+  const summary = document.getElementById('f_summary').value;
+  document.getElementById('p_summary').innerText = summary;
+  document.getElementById('p_summary').style.display = summary ? 'block' : 'none';
+
+  // Experience
+  const expBlocks = document.querySelectorAll('#expList .entry-block');
+  const expOut = document.getElementById('p_experience');
+  if(expBlocks.length === 0){
+    expOut.innerHTML = '<div class="empty-note">Add a role to see it appear here.</div>';
+  } else {
+    expOut.innerHTML = '';
+    expBlocks.forEach(b => {
+      const role = b.querySelector('.exp-role').value || 'Role';
+      const org = b.querySelector('.exp-org').value || '';
+      const date = b.querySelector('.exp-date').value || '';
+      const desc = b.querySelector('.exp-desc').value || '';
+      const bullets = desc.split('\\n').filter(l => l.trim()).map(l => '• ' + l.trim()).join('\\n');
+      const entry = document.createElement('div');
+      entry.className = 'cv-entry';
+      entry.innerHTML = `
+        <div class="cv-entry-head">
+          <span><span class="cv-entry-role">${esc(role)}</span>${org ? ' — <span class="cv-entry-org">' + esc(org) + '</span>' : ''}</span>
+          <span class="cv-entry-date">${esc(date)}</span>
+        </div>
+        ${bullets ? '<div class="cv-entry-desc">' + esc(bullets) + '</div>' : ''}
+      `;
+      expOut.appendChild(entry);
+    });
+  }
+
+  // Education
+  const eduBlocks = document.querySelectorAll('#eduList .entry-block');
+  const eduOut = document.getElementById('p_education');
+  if(eduBlocks.length === 0){
+    eduOut.innerHTML = '<div class="empty-note">Add your education to see it appear here.</div>';
+  } else {
+    eduOut.innerHTML = '';
+    eduBlocks.forEach(b => {
+      const degree = b.querySelector('.edu-degree').value || 'Degree';
+      const org = b.querySelector('.edu-org').value || '';
+      const date = b.querySelector('.edu-date').value || '';
+      const entry = document.createElement('div');
+      entry.className = 'cv-entry';
+      entry.innerHTML = `
+        <div class="cv-entry-head">
+          <span><span class="cv-entry-role">${esc(degree)}</span>${org ? ' — <span class="cv-entry-org">' + esc(org) + '</span>' : ''}</span>
+          <span class="cv-entry-date">${esc(date)}</span>
+        </div>
+      `;
+      eduOut.appendChild(entry);
+    });
+  }
+
+  // Skills
+  const skillsRaw = document.getElementById('f_skills').value;
+  const skillsOut = document.getElementById('p_skills');
+  skillsOut.innerHTML = '';
+  if(skillsRaw){
+    skillsRaw.split(',').map(s => s.trim()).filter(Boolean).forEach(s => {
+      const span = document.createElement('span');
+      span.className = 'cv-skill';
+      span.innerText = s;
+      skillsOut.appendChild(span);
+    });
+  }
+}
+
+// Wire up top-level fields
+['f_name','f_title','f_email','f_phone','f_location','f_link','f_summary','f_skills'].forEach(id => {
+  document.getElementById(id).addEventListener('input', render);
+});
+
+// Start with one experience and one education block
+addExperience();
+addEducation();
+render();
+</script>
+</body>
+</html>
